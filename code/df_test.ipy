@@ -1,0 +1,150 @@
+# coding: utf-8
+#importing libraries
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn import datasets, metrics
+from sklearn.linear_model import LinearRegression, LassoCV, RidgeCV, Lasso, Ridge
+from sklearn.metrics import r2_score,mean_squared_error
+from sklearn.model_selection import train_test_split, cross_val_score
+#Variable 1 --> total square footage proxy
+%store -r df_no_na
+df_no_na["Total_SF"] = df_no_na[["Total Bsmt SF", "1st Flr SF", "2nd Flr SF", "Garage Area"]].sum(axis=1) 
+#repeat for test data
+%store -r df_test_no_na
+df_test_no_na["Total_SF"] = df_test_no_na[["Total Bsmt SF", "1st Flr SF", "2nd Flr SF", "Garage Area"]].sum(axis=1) 
+#repeat for test data
+%store -r df_test_no_na
+df_test_no_na["Total_SF"] = df_test_no_na[["Total Bsmt SF", "1st Flr SF", "2nd Flr SF", "Garage Area"]].sum(axis=1) 
+plt.scatter(y2_test, y2_pred)
+plt.plot(range(20000), range(20000))
+
+plt.xlabel("Actual Sale Price - test split")
+plt.ylabel("Predicted Sale Price - test split$")
+plt.title("Actual vs. Predicted Sale Price (test split data)")
+
+plt.show()
+#importing libraries
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn import datasets, metrics
+from sklearn.linear_model import LinearRegression, LassoCV, RidgeCV, Lasso, Ridge
+from sklearn.metrics import r2_score,mean_squared_error
+from sklearn.model_selection import train_test_split, cross_val_score
+#Variable 1 --> total square footage proxy
+%store -r df_no_na
+df_no_na["Total_SF"] = df_no_na[["Total Bsmt SF", "1st Flr SF", "2nd Flr SF", "Garage Area"]].sum(axis=1) 
+#repeat for test data
+%store -r df_test_no_na
+df_test_no_na["Total_SF"] = df_test_no_na[["Total Bsmt SF", "1st Flr SF", "2nd Flr SF", "Garage Area"]].sum(axis=1) 
+#Variable 2 --> overall quality and condition of the house
+df_no_na["Qual_cond"] = df_no_na["Overall Qual"] * df_no_na["Overall Cond"]
+#repeat for test data
+df_test_no_na["Qual_cond"] = df_test_no_na["Overall Qual"] * df_test_no_na["Overall Cond"]
+#Variable 3 --> Zoning dummy
+df_no_na_dummy = pd.get_dummies(df_no_na, columns = ["MS Zoning"], prefix_sep = "_", prefix = "zone", drop_first = True)
+#repeat for test data
+df_test_no_na_dummy = pd.get_dummies(df_test_no_na, columns = ["MS Zoning"], prefix_sep = "_", prefix = "zone", drop_first = True)
+#Variable 4 --> Neighborhood dummy
+df_no_na_dummy_final = pd.get_dummies(df_no_na_dummy, columns = ["Neighborhood"], prefix_sep = "_", prefix = "area", drop_first = True)
+#repeat for test daata
+df_test_no_na_dummy_final = pd.get_dummies(df_test_no_na_dummy, columns = ["Neighborhood"], prefix_sep = "_", prefix = "area", drop_first = True)
+sns.set(font_scale=0.5)
+sns.pairplot(df_no_na, y_vars=['Total_SF', 'Qual_cond'], x_vars=['SalePrice']);
+sns.set(font_scale=0.5)
+sns.pairplot(df_no_na, y_vars=['MS Zoning', 'Neighborhood'], x_vars=['SalePrice']);
+#Columns to keep
+features_2 = ['Total_SF',
+ 'Qual_cond',
+'Overall Cond',
+'Overall Qual',
+'zone_C (all)',
+ 'zone_FV',
+ 'zone_I (all)',
+ 'zone_RH',
+ 'zone_RL',
+ 'zone_RM',
+ 'area_Blueste',
+ 'area_BrDale',
+ 'area_BrkSide',
+ 'area_ClearCr',
+ 'area_CollgCr',
+ 'area_Crawfor',
+ 'area_Edwards',
+ 'area_Gilbert',
+ 'area_Greens',
+ 'area_GrnHill',
+ 'area_IDOTRR',
+ 'area_Landmrk',
+ 'area_MeadowV',
+ 'area_Mitchel',
+ 'area_NAmes',
+ 'area_NPkVill',
+ 'area_NWAmes',
+ 'area_NoRidge',
+ 'area_NridgHt',
+ 'area_OldTown',
+ 'area_SWISU',
+ 'area_Sawyer',
+ 'area_SawyerW',
+ 'area_Somerst',
+ 'area_StoneBr',
+ 'area_Timber',
+ 'area_Veenker']
+X_2 = df_no_na_dummy_final[features_2]
+y = df_no_na_dummy_final["SalePrice"]
+df_test_no_na_dummy_final["zone_C (all)"]=0
+df_test_no_na_dummy_final["area_GrnHill"]=0
+df_test_no_na_dummy_final["area_Landmrk"]=0
+#3 dummy columns do not exist in our test file, that were inserted to apply train data
+X_2_to_test = df_test_no_na_dummy_final[features_2]
+X2_train, X2_test, y2_train, y2_test = train_test_split(X_2, y, random_state=42)
+ss = StandardScaler()
+#ss.fit(X_train)
+X2_train = ss.fit_transform(X2_train)
+X2_test = ss.transform(X2_test)
+X_2_to_test = ss.transform(X_2_to_test)
+lr = LinearRegression()
+lr.fit(X2_train,y2_train)
+y2_pred = lr.predict(X2_test) #validate model
+rmse_2 = np.sqrt(mean_squared_error(y2_test, y2_pred))
+print(f"train_data r^2: {lr.score(X2_train,y_train)}.")
+print(f"validation_data r^2: {lr.score(X2_test, y_test)}.")
+print(f"root mean squared error: {rmse_2}.")
+print(f"train_data r^2: {lr.score(X2_train,y2_train)}.")
+print(f"validation_data r^2: {lr.score(X2_test, y2_test)}.")
+print(f"root mean squared error: {rmse_2}.")
+plt.scatter(y2_test, y2_pred)
+plt.plot(range(20000), range(20000))
+
+plt.xlabel("Actual Sale Price - test split")
+plt.ylabel("Predicted Sale Price - test split$")
+plt.title("Actual vs. Predicted Sale Price (test split data)")
+
+plt.show()
+lasso.fit(X2_train, y2_train)
+
+lasso_scores = cross_val_score(lasso, X2_train, y2_train, cv = 5)
+lasso_scores.mean()
+lasso = LassoCV(n_alphas=200)
+lasso.fit(X2_train, y2_train)
+
+lasso_scores = cross_val_score(lasso, X2_train, y2_train, cv = 5)
+lasso_scores.mean()
+pd.Series(lasso.coef_, index=features_2).plot.bar(figsize = (15, 7));
+ridge = RidgeCV(alphas=np.linspace(.1, 10, 100))
+ridge_scores = cross_val_score(ridge, X2_train, y2_train, cv = 5)
+ridge_scores.mean()
+submission3 = pd.DataFrame(df_test, columns=["Id"])
+submission3["SalePrice"] = lr.predict(X_2_to_test)
+%save -r df_test
+submission3 = pd.DataFrame(df_test, columns=["Id"])
